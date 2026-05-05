@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────
+#  AI/ML Lab – .gitignore
+# ─────────────────────────────────────────────
+
+# Data outputs (large files)
+data/*.png
+data/*.html
+data/*.csv
+data/*.pkl
+
+# Python cache
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Docker volumes (managed by Docker)
+mlflow-data/
+grafana-data/
+prometheus-data/
+
+# Secrets
+.env.local
+*.key
+
+# OS
+.DS_Store
+Thumbs.db

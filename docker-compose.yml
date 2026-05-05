@@ -1,0 +1,126 @@
+
+# ─────────────────────────────────────────────
+#  AI / ML Upskilling Lab  –  Docker Compose
+#  Services:
+#    1. jupyter      – JupyterLab (main coding env)
+#    2. mlflow       – Experiment tracking server
+#    3. prometheus   – Metrics scraping
+#    4. grafana      – Dashboards & observability
+#    5. evidently    – Data / model drift UI
+# ─────────────────────────────────────────────
+
+networks:
+  ailab-net:
+    driver: bridge
+
+volumes:
+  mlflow-data:
+  grafana-data:
+  prometheus-data:
+  evidently-data:
+
+services:
+
+  # ── 1. JupyterLab ──────────────────────────
+  jupyter:
+    build:
+      context: ./jupyter
+      dockerfile: Dockerfile
+    container_name: ailab-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work/notebooks
+      - ./data:/home/jovyan/work/data
+      - ./scripts:/home/jovyan/work/scripts
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    networks:
+      - ailab-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── 2. MLflow ──────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.13.2
+    container_name: ailab-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    networks:
+      - ailab-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── 3. Prometheus ──────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: ailab-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - ailab-net
+    restart: unless-stopped
+
+  # ── 4. Grafana ─────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: ailab-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ailab123
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_DOMAIN: localhost
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    networks:
+      - ailab-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ── 5. Evidently AI UI ─────────────────────
+  evidently:
+    image: python:3.11-slim
+    container_name: ailab-evidently
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./evidently_ui:/workspace
+      - evidently-data:/data
+    working_dir: /workspace
+    command: >
+      bash -c "pip install evidently --quiet &&
+               python -m evidently ui --workspace /data --host 0.0.0.0 --port 8000"
+    networks:
+      - ailab-net
+    restart: unless-stopped

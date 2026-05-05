@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'ailab-monitor'
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # JupyterLab metrics (exposed by prometheus-client in notebooks)
+  - job_name: 'jupyter-ml-metrics'
+    static_configs:
+      - targets: ['jupyter:8888']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MLflow server
+  - job_name: 'mlflow'
+    static_configs:
+      - targets: ['mlflow:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
