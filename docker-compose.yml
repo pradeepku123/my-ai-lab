@@ -56,7 +56,9 @@ services:
     command: >
       mlflow server
       --backend-store-uri sqlite:///mlflow/mlflow.db
-      --default-artifact-root /mlflow/artifacts
+      --artifacts-destination /mlflow/artifacts
+      --default-artifact-root mlflow-artifacts:/
+      --serve-artifacts
       --host 0.0.0.0
       --port 5000
     networks:
@@ -120,7 +122,7 @@ services:
     working_dir: /workspace
     command: >
       bash -c "pip install evidently --quiet &&
-               python -m evidently ui --workspace /data --host 0.0.0.0 --port 8000"
+               evidently ui --workspace /data --host 0.0.0.0 --port 8000"
     networks:
       - ailab-net
     restart: unless-stopped
