@@ -37,6 +37,7 @@ A **fully Dockerized** practice environment covering all 3 phases of the AI/ML V
 | 04 | `04_phase2_drift_detection.ipynb` | Phase 2 | KS test, PSI, Evidently reports |
 | 05 | `05_phase3_mlflow_tracking.ipynb` | Phase 3 | Experiment tracking, Optuna HPO |
 | 06 | `06_phase3_monitoring_prometheus.ipynb` | Phase 3 | Prometheus metrics, Grafana dashboards |
+| 07 | `07_phase4_llm_evaluation.ipynb` | Phase 4 | RAGAS, BERTScore, LLM-as-a-Judge |
 
 ---
 
@@ -48,7 +49,8 @@ my-ai-lab/
 ├── start-lab.sh              # One-click startup
 ├── jupyter/
 │   └── Dockerfile            # JupyterLab + all ML libs
-├── notebooks/                # 6 practice notebooks
+├── notebooks/                # 7 practice notebooks
+├── docs/                     # Documentation & Guides
 ├── data/                     # Outputs: plots, HTML reports
 ├── prometheus/
 │   └── prometheus.yml        # Scrape config
@@ -96,4 +98,6 @@ docker compose exec jupyter bash
 ### Phase 3: Production Validation & MLOps (Months 7–12)
 - ✅ Experiment Tracking – MLflow + Optuna (Notebook 05)
 - ✅ Monitoring – Prometheus + Grafana (Notebook 06)
+- 📌 LLM Evaluation Metrics (New [Guide](file:///home/pradeep/pradeep_space/gitRepos/my-ai-lab/docs/LLM_EVALUATION_METRICS.md))
+- ✅ Phase 4: Generative AI Evaluation (Notebook 07)
 - 📌 CI/CD for ML: GitHub Actions gates

@@ -49,6 +49,17 @@ RUN pip install --no-cache-dir \
     psutil==5.9.8 \
     requests==2.32.3
 
+# ── Phase 4: GenAI & LLM Evaluation ───────────
+# RAG evaluation, LLM-as-a-Judge, semantic metrics
+RUN pip install --no-cache-dir \
+    ragas==0.1.9 \
+    deepeval==0.21.51 \
+    bert-score==0.3.13 \
+    rouge-score==0.1.2 \
+    langchain==0.2.1 \
+    langchain-openai==0.1.8 \
+    langchain-community==0.2.1
+
 # ── Visualization & Utilities ─────────────────
 RUN pip install --no-cache-dir \
     matplotlib==3.9.0 \
